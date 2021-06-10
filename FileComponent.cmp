@@ -1,0 +1,33 @@
+<aura:component controller="MyApexController"
+            implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:appHostable,forceCommunity:availableForAllPageTypes,lightning:isUrlAddressable" access="global" >
+
+<aura:attribute name="recId" type="String" />
+<aura:attribute name="parentId" type="Id" default="recId" />
+<aura:attribute name="fileName" type="String" default="No File Selected.." />
+
+
+    <lightning:layout horizontalAlign="space">
+    
+                                      <lightning:layoutItem padding="around-small">
+                                       <!-- Here you can have your object field input fields as per requirement -->
+                                      </lightning:layoutItem>
+    
+    
+                                    <lightning:layoutItem padding="around-small">
+                                        <lightning:input aura:id="fuploader" onchange="{!c.handleFilesChange}" type="file" name="file" label="Certificate of Insurance" multiple="false"
+                                                            accept=".pdf, .jpg, .png, .doc, .xls, .xlsx, .txt,.csv "/>
+                                        <div class="slds-text-body_small slds-text-color_error">{!v.fileName} </div> 
+                                        </lightning:layoutItem>
+    </lightning:layout>
+
+    <lightning:layout multipleRows="true" verticalAlign="end" class="slds-form slds-form_horizontal">
+                                    <lightning:layoutItem padding="around-small" size="6" smallDeviceSize="12" mediumDeviceSize="12" >
+                                        <div  class="slds-align_absolute-center" >
+                                                <lightning:button label="Save" title="Neutral action" onclick="{! c.doSave }"/>
+                                                <!-- this button will first send the Data to apex class to save a record and then will invoke the file upload method-->
+                                        </div>
+                                    </lightning:layoutItem>
+    </lightning:layout>
+
+ 
+</aura:component>
