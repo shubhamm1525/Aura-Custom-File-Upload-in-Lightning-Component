@@ -1,0 +1,56 @@
+public class MyApexController {
+
+
+     @AuraEnabled
+    public static Id saveTheFile(Id parentId, String fileName, String base64Data, String contentType, String label) { 
+        string title = label+' '+fileName ;
+        String contentId = '';
+        
+        ContentVersion[] contentVersion = [ SELECT Id, versionData  FROM ContentVersion  WHERE FirstPublishLocationId = :parentId  AND Title=:title LIMIT 1 ];
+        system.debug('contentVersion ' + contentVersion);
+          
+        if (!contentVersion.isEmpty()) {
+             upsert contentVersion;
+            contentId = contentVersion[0].Id;
+         }else{
+             // base64Data = EncodingUtil.urlDecode(base64Data, 'UTF-8');
+             ContentVersion   cVersion = new ContentVersion();
+             cVersion.ContentLocation = 'S'; 
+             cVersion.PathOnClient = '/' + fileName;//att_list.values()[num].Name;//File name with extention
+             cVersion.Origin = 'H';//C-Content Origin. H-Chatter Origin.
+             cVersion.Title = label+' '+fileName ;//att_list.values()[num].Name;//Name of the file
+             cVersion.VersionData = EncodingUtil.base64Decode(base64Data);
+             cVersion.FirstPublishLocationId = parentId;
+             cVersion.IsMajorVersion = false;
+             insert cVersion; 
+             contentId = cVersion.Id;
+         }
+         return contentId;
+    }
+    
+    @AuraEnabled
+    public static  Id SaveFile(Id parentId, String fileName, String base64Data, String contentType , String label, String fileId){
+         base64Data = EncodingUtil.urlDecode(base64Data, 'UTF-8');
+        if (fileId == '') {
+            fileId = saveTheFile(parentId, fileName, base64Data, contentType,label);
+        } else {
+            appendToFile(fileId, base64Data);
+        }
+        return Id.valueOf(fileId);
+    }
+    
+    public static void appendToFile(Id fileId, String base64Data) {
+        // base64Data = EncodingUtil.urlDecode(base64Data, 'UTF-8');
+        ContentVersion contentVersion = [
+            SELECT Id, versionData
+            FROM ContentVersion
+            WHERE Id = :fileId
+        ];
+        String existingBody = EncodingUtil.base64Encode(contentVersion.versionData);
+        contentVersion.versionData = EncodingUtil.base64Decode(existingBody + base64Data); 
+        update contentVersion;   
+    }  
+     //File Upload Method 
+ 
+
+}
